@@ -1,0 +1,156 @@
+/* 1. KHÓA CỨNG TOÀN BỘ MÀN HÌNH CHÍNH - CẤM CUỘN TRƯỢT */
+html, body, [data-testid="stAppViewContainer"], .stApp {
+    overflow: hidden !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Ẩn thanh cuộn tổng của trình duyệt */
+::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 2. Ẩn triệt để các thành phần mặc định của Streamlit */
+#MainMenu, header, footer, [data-testid="stHeader"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Căn chỉnh không gian hiển thị khít màn hình */
+.block-container {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: 5rem !important;
+    padding-right: 5rem !important;
+    height: 100vh !important;
+}
+
+/* 3. KHUNG CHỨA CHAT KÍNH ĐEN MỜ (CÓ THANH CUỘN MƯỢT MÀ) */
+.chat-container {
+    background-color: rgba(10, 12, 16, 0.85) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 28px !important;
+    padding: 25px 20px 25px 25px !important;
+    
+    /* Chiều cao khung chat chiếm 70% màn hình */
+    height: 70vh !important; 
+    max-height: 70vh !important;
+    
+    /* Cho phép cuộn mượt mà bên trong khung chat */
+    overflow-y: scroll !important; 
+    overflow-x: hidden !important;
+    
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Định dạng thanh cuộn mảnh bên trong khung kính đen */
+.chat-container::-webkit-scrollbar {
+    width: 6px !important;
+    display: block !important;
+}
+
+.chat-container::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border-radius: 10px !important;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* 4. ĐỊNH DẠNG TIN NHẮN VÀ AVATAR TRONG KHUNG CHAT */
+.chat-row {
+    display: flex !important;
+    align-items: flex-start !important;
+    margin-bottom: 20px !important;
+    width: 100% !important;
+}
+
+.avatar {
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-family: 'Segoe UI', sans-serif !important;
+    font-weight: bold !important;
+    font-size: 15px !important;
+    margin-right: 15px !important;
+    flex-shrink: 0 !important;
+    /* XÓA BỎ BORDER-RADIUS: 50% Ở ĐÂY ĐỂ TRÁNH LỖI ĐÈ HÌNH NGÔI SAO */
+}
+
+/* AVATAR USER - NGÔI SAO MÀU HỒNG */
+.avatar-user {
+    background-color: #FFB6C1 !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 12px rgba(255, 182, 193, 0.8) !important;
+    border-radius: 0% !important; /* Triệt tiêu bo tròn */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important; /* Cắt hình ngôi sao */
+}
+
+/* AVATAR PIROH - NGÔI SAO MÀU XANH */
+.avatar-piroh {
+    background-color: #87CEEB !important;
+    color: #FFFFFF !important;
+    box-shadow: 0 0 12px rgba(135, 206, 235, 0.8) !important;
+    border-radius: 0% !important; /* Triệt tiêu bo tròn */
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%) !important; /* Cắt hình ngôi sao */
+}
+
+.message-text {
+    color: #FFFFFF !important;
+    font-family: 'Segoe UI', sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.5 !important;
+    word-break: break-word !important;
+    flex-grow: 1 !important;
+}
+
+/* 5. CHỮ "PIROH" SIÊU TO KHỔNG LỒ VÀ ĐẶT SÁT MÉP TRÊN */
+.left-title {
+    font-family: 'Arial Black', Gadget, sans-serif !important;
+    font-size: 80px !important;
+    font-weight: 900 !important;
+    color: #444444 !important;
+    text-shadow: 3px 3px 0px #777777 !important;
+    text-align: center !important;
+    margin-top: 1vh !important;
+    letter-spacing: 6px !important;
+}
+
+/* 6. TÙY BIẾN Ô NHẬP LIỆU CHAT MÀU TRẮNG BO TRÒN */
+[data-testid="stChatInput"] {
+    background-color: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 35px !important;
+    margin-top: 15px !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15) !important;
+}
+
+[data-testid="stChatInput"] > div {
+    background-color: transparent !important;
+}
+
+[data-testid="stChatInput"] textarea {
+    background-color: transparent !important;
+    color: #333333 !important;
+    font-size: 15px !important;
+    font-family: 'Segoe UI', sans-serif !important;
+}
+
+[data-testid="stChatInput"] textarea::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-testid="stChatInput"]:focus-within {
+    border-color: rgba(0, 0, 0, 0.2) !important;
+}
