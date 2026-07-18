@@ -17,7 +17,6 @@ def get_base64_of_bin_file(bin_file):
     return base64.b64encode(data).decode()
 
 def save_data(data):
-    # Lưu dữ liệu sạch, không lưu tin nhắn lỗi tạm thời
     clean_data = [msg for msg in data if "Tớ đang hơi" not in msg["content"] and "Tớ bị quá tải" not in msg["content"]]
     with open(FILE_NAME, 'w', encoding='utf-8') as f:
         json.dump(clean_data, f, ensure_ascii=False, indent=4)
@@ -30,19 +29,17 @@ def load_data():
 
 st.set_page_config(page_title="Piroh - Tri kỷ ảo", page_icon="🧸", layout="wide")
 
-# Nhúng ảnh nền
 try:
     img_base64 = get_base64_of_bin_file("pirohanuianh.jpg")
     bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
     st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_allow_html=True)
 except: pass
 
-# Nạp CSS
 if os.path.exists(CSS_PATH):
     with open(CSS_PATH, "r", encoding="utf-8") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-API_KEY = ""
+API_KEY = os.environ.get("")
 
 if "messages" not in st.session_state: st.session_state.messages = load_data()
 
@@ -61,11 +58,9 @@ with col2:
         chat_html = '<div class="chat-container" id="chat-box-piro">'
         template = open(HTML_TEMPLATE_PATH, "r", encoding="utf-8").read() if os.path.exists(HTML_TEMPLATE_PATH) else ""
         
-        # Hiển thị lời chào nếu chưa có tin nhắn
         if not st.session_state.messages:
             chat_html += template.replace("{{ role }}", "piroh").replace("{{ initial }}", "P").replace("{{ content }}", "Có chuyện gì nè, Piroh luôn ở đây lắng nghe bạn tâm sự. 🧸")
         
-        # Hiển thị lịch sử chat
         for msg in st.session_state.messages:
             role = "user" if msg["role"] == "user" else "piroh"
             initial = "U" if msg["role"] == "user" else "P"
@@ -88,7 +83,7 @@ with col2:
         try:
             client = genai.Client(api_key=API_KEY)
             history = [types.Content(role="model" if m["role"] == "assistant" else "user", parts=[types.Part.from_text(text=m["content"])]) for m in st.session_state.messages[:-1]]
-            chat = client.chats.create(model="gemini-2.5-flash", history=history)
+            chat = client.chats.create(model="gemini-1.5-flash", history=history)
             
             response = None
             for _ in range(3):
@@ -103,5 +98,6 @@ with col2:
             save_data(st.session_state.messages)
             st.rerun()
         except:
-            st.session_state.messages.pop()
+            if len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
+                st.session_state.messages.pop()
             render_chat(show_typing=False, error_text="Tớ bị quá tải một chút, cậu đợi một xíu rồi nhắn lại cho tớ nha! 🧸")
