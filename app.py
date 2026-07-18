@@ -6,20 +6,28 @@ import os
 import base64
 import time
 
+# Cấu hình file
 FILE_NAME = 'data.json'
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSS_PATH = os.path.join(CURRENT_DIR, "style.css")
 HTML_TEMPLATE_PATH = os.path.join(CURRENT_DIR, "chat_template.html")
 
+# Lấy API Key từ Secrets của Streamlit
+try:
+    API_KEY = st.secrets[""]
+except:
+    st.error("Chưa thiết lập GEMINI_API_KEY trong Secrets!")
+    st.stop()
+
 def get_base64_of_bin_file(bin_file):
+    if not os.path.exists(bin_file): return ""
     with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+        return base64.b64encode(f.read()).decode()
 
 def save_data(data):
-    clean_data = [msg for msg in data if "Tớ đang hơi" not in msg["content"] and "Tớ bị quá tải" not in msg["content"]]
+    # Chỉ lưu lịch sử chat thực tế, không lưu thông báo hệ thống
     with open(FILE_NAME, 'w', encoding='utf-8') as f:
-        json.dump(clean_data, f, ensure_ascii=False, indent=4)
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
 def load_data():
     if not os.path.exists(FILE_NAME): return []
@@ -29,17 +37,17 @@ def load_data():
 
 st.set_page_config(page_title="Piroh - Tri kỷ ảo", page_icon="🧸", layout="wide")
 
+# CSS Background
 try:
     img_base64 = get_base64_of_bin_file("pirohanuianh.jpg")
-    bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
-    st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_allow_html=True)
+    if img_base64:
+        bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
+        st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_allow_html=True)
 except: pass
 
 if os.path.exists(CSS_PATH):
     with open(CSS_PATH, "r", encoding="utf-8") as f:
         st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-API_KEY = os.environ.get("")
 
 if "messages" not in st.session_state: st.session_state.messages = load_data()
 
@@ -52,7 +60,6 @@ with col2:
         st.rerun()
             
     chat_placeholder = st.empty()
-    user_input = st.chat_input("Tâm sự cùng PIROH ở đây nhé...")
 
     def render_chat(show_typing=False, error_text=None):
         chat_html = '<div class="chat-container" id="chat-box-piro">'
@@ -72,10 +79,11 @@ with col2:
             chat_html += f'<div class="chat-row"><div class="avatar avatar-piroh">P</div><div class="message-text" style="font-style: italic; opacity: 0.8;">{error_text}</div></div>'
         
         chat_html += '<div id="end-of-chat"></div></div>'
-        chat_placeholder.markdown(chat_html, unsafe_allow_html=True)
+        chat_placeholder.markdown(chat_html, unsafe_html=True)
 
     render_chat()
 
+    user_input = st.chat_input("Tâm sự cùng PIROH ở đây nhé...")
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
         render_chat(show_typing=True)
@@ -85,19 +93,10 @@ with col2:
             history = [types.Content(role="model" if m["role"] == "assistant" else "user", parts=[types.Part.from_text(text=m["content"])]) for m in st.session_state.messages[:-1]]
             chat = client.chats.create(model="gemini-1.5-flash", history=history)
             
-            response = None
-            for _ in range(3):
-                try:
-                    response = chat.send_message(user_input)
-                    break
-                except Exception as e:
-                    if "429" in str(e): time.sleep(2)
-                    else: raise e
+            response = chat.send_message(user_input)
             
             st.session_state.messages.append({"role": "assistant", "content": response.text})
             save_data(st.session_state.messages)
             st.rerun()
-        except:
-            if len(st.session_state.messages) > 0 and st.session_state.messages[-1]["role"] == "user":
-                st.session_state.messages.pop()
+        except Exception as e:
             render_chat(show_typing=False, error_text="Tớ bị quá tải một chút, cậu đợi một xíu rồi nhắn lại cho tớ nha! 🧸")
