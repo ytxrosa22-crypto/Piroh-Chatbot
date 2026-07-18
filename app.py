@@ -13,7 +13,7 @@ CSS_PATH = os.path.join(CURRENT_DIR, "style.css")
 HTML_TEMPLATE_PATH = os.path.join(CURRENT_DIR, "chat_template.html")
 
 try:
-API_KEY = st.secrets["GEMINI_API_KEY"]
+    API_KEY = st.secrets["GEMINI_API_KEY"]
 except:
     st.error("Chưa thiết lập GEMINI_API_KEY trong Secrets!")
     st.stop()
