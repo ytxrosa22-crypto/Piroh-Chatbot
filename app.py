@@ -12,9 +12,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSS_PATH = os.path.join(CURRENT_DIR, "style.css")
 HTML_TEMPLATE_PATH = os.path.join(CURRENT_DIR, "chat_template.html")
 
-# Lấy API Key từ Secrets của Streamlit
 try:
-    API_KEY = st.secrets[""]
+API_KEY = st.secrets["GEMINI_API_KEY"]
 except:
     st.error("Chưa thiết lập GEMINI_API_KEY trong Secrets!")
     st.stop()
@@ -25,7 +24,6 @@ def get_base64_of_bin_file(bin_file):
         return base64.b64encode(f.read()).decode()
 
 def save_data(data):
-    # Chỉ lưu lịch sử chat thực tế, không lưu thông báo hệ thống
     with open(FILE_NAME, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
