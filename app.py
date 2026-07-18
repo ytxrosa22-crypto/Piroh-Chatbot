@@ -4,7 +4,6 @@ from google.genai import types
 import json
 import os
 import base64
-import time
 
 # Cấu hình file
 FILE_NAME = 'data.json'
@@ -12,6 +11,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 CSS_PATH = os.path.join(CURRENT_DIR, "style.css")
 HTML_TEMPLATE_PATH = os.path.join(CURRENT_DIR, "chat_template.html")
 
+# Lấy API Key từ Secrets
 try:
     API_KEY = st.secrets["GEMINI_API_KEY"]
 except:
@@ -60,8 +60,12 @@ with col2:
     chat_placeholder = st.empty()
 
     def render_chat(show_typing=False, error_text=None):
+        template = ""
+        if os.path.exists(HTML_TEMPLATE_PATH):
+            with open(HTML_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+                template = f.read()
+        
         chat_html = '<div class="chat-container" id="chat-box-piro">'
-        template = open(HTML_TEMPLATE_PATH, "r", encoding="utf-8").read() if os.path.exists(HTML_TEMPLATE_PATH) else ""
         
         if not st.session_state.messages:
             chat_html += template.replace("{{ role }}", "piroh").replace("{{ initial }}", "P").replace("{{ content }}", "Có chuyện gì nè, Piroh luôn ở đây lắng nghe bạn tâm sự. 🧸")
