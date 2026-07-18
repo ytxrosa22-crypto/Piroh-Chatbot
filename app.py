@@ -32,19 +32,20 @@ st.set_page_config(page_title="Piroh - Tri kỷ ảo", page_icon="🧸", layout=
 try:
     img_base64 = get_base64_of_bin_file("pirohanuianh.jpg")
     bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
-    st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_allow_html=True)
+    st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_html=True)
 except: pass
 
 if os.path.exists(CSS_PATH):
     with open(CSS_PATH, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+        st.markdown(f"<style>{f.read()}</style>", unsafe_html=True)
 
-API_KEY = os.environ.get("")
+# ĐÃ SỬA: Lấy API Key từ Secrets của Streamlit
+API_KEY = st.secrets["GEMINI_API_KEY"]
 
 if "messages" not in st.session_state: st.session_state.messages = load_data()
 
 col1, col2 = st.columns([1.2, 1])
-with col1: st.markdown('<div class="left-title">PIROH</div>', unsafe_allow_html=True)
+with col1: st.markdown('<div class="left-title">PIROH</div>', unsafe_html=True)
 with col2:
     if st.button("Xóa chat 🗑️"):
         st.session_state.messages = []
@@ -56,6 +57,7 @@ with col2:
 
     def render_chat(show_typing=False, error_text=None):
         chat_html = '<div class="chat-container" id="chat-box-piro">'
+        # ĐÃ SỬA: Đọc file an toàn hơn
         template = open(HTML_TEMPLATE_PATH, "r", encoding="utf-8").read() if os.path.exists(HTML_TEMPLATE_PATH) else ""
         
         if not st.session_state.messages:
@@ -72,7 +74,7 @@ with col2:
             chat_html += f'<div class="chat-row"><div class="avatar avatar-piroh">P</div><div class="message-text" style="font-style: italic; opacity: 0.8;">{error_text}</div></div>'
         
         chat_html += '<div id="end-of-chat"></div></div>'
-        chat_placeholder.markdown(chat_html, unsafe_allow_html=True)
+        chat_placeholder.markdown(chat_html, unsafe_html=True)
 
     render_chat()
 
