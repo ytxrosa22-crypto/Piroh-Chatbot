@@ -12,34 +12,44 @@ CSS_PATH = os.path.join(CURRENT_DIR, "style.css")
 HTML_TEMPLATE_PATH = os.path.join(CURRENT_DIR, "chat_template.html")
 
 def get_base64_of_bin_file(bin_file):
-    with open(bin_file, 'rb') as f:
-        data = f.read()
-    return base64.b64encode(data).decode()
+    try:
+        with open(bin_file, 'rb') as f:
+            return base64.b64encode(f.read()).decode()
+    except: return ""
 
 def save_data(data):
     clean_data = [msg for msg in data if "Tớ đang hơi" not in msg["content"] and "Tớ bị quá tải" not in msg["content"]]
-    with open(FILE_NAME, 'w', encoding='utf-8') as f:
-        json.dump(clean_data, f, ensure_ascii=False, indent=4)
+    try:
+        with open(FILE_NAME, 'w', encoding='utf-8') as f:
+            json.dump(clean_data, f, ensure_ascii=False, indent=4)
+    except: pass
 
 def load_data():
     if not os.path.exists(FILE_NAME): return []
-    with open(FILE_NAME, 'r', encoding='utf-8') as f:
-        try: return json.load(f)
-        except: return []
+    try:
+        with open(FILE_NAME, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except: return []
 
 st.set_page_config(page_title="Piroh - Tri kỷ ảo", page_icon="🧸", layout="wide")
 
+# SỬA: Bọc background trong try-except
 try:
     img_base64 = get_base64_of_bin_file("pirohanuianh.jpg")
-    bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
-    st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_html=True)
+    if img_base64:
+        bg_style = f"background-image: url('data:image/jpeg;base64,{img_base64}'); background-size: cover; background-position: center;"
+        st.markdown(f"<style>.stApp {{ {bg_style} }}</style>", unsafe_html=True)
 except: pass
 
+# SỬA: Đọc CSS cực kỳ an toàn
 if os.path.exists(CSS_PATH):
-    with open(CSS_PATH, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_html=True)
+    try:
+        with open(CSS_PATH, "r", encoding="utf-8") as f:
+            css_content = f.read()
+            if css_content:
+                st.markdown(f"<style>{css_content}</style>", unsafe_html=True)
+    except: pass
 
-# ĐÃ SỬA: Lấy API Key từ Secrets của Streamlit
 API_KEY = st.secrets["GEMINI_API_KEY"]
 
 if "messages" not in st.session_state: st.session_state.messages = load_data()
@@ -57,7 +67,6 @@ with col2:
 
     def render_chat(show_typing=False, error_text=None):
         chat_html = '<div class="chat-container" id="chat-box-piro">'
-        # ĐÃ SỬA: Đọc file an toàn hơn
         template = open(HTML_TEMPLATE_PATH, "r", encoding="utf-8").read() if os.path.exists(HTML_TEMPLATE_PATH) else ""
         
         if not st.session_state.messages:
